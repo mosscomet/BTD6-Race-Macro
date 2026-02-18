@@ -42,16 +42,23 @@ def UpgradeUnderCursor(UpgradePath: int):
     UpgradePresses = list(str(UpgradePath))
     print(UpgradePresses)
     time.sleep(0.01)
-    for i in range(2):
+    for i in range(3):
         for j in range(int(UpgradePresses[i])):
             if i == 0:
                 pydirectinput.press(",")
+                print(",")
             if i == 1:
                 pydirectinput.press(".")
+                print(".")
             if i == 2:
                 pydirectinput.press("/")
+                print("/")
 
 
-PlaceMonkey(1000,1000,"plane")
+PlaceMonkey(1000,1300,"plane")
 UpgradeUnderCursor(203)
 
+PlaceMonkey(1250,1300,"plane")
+UpgradeUnderCursor(203)
+
+PlaceMonkey(1450,1350,"hero")
