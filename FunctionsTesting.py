@@ -17,7 +17,7 @@ MonkeyNames = ["dart","boomerang","bomb","tack","ice","glue", "desperado","snipe
 Keybinds = ["q","w","e","r","t","y","","z","x","c","v","b","n","m","a","s","d","f","g","","h","j","k","l","i","u"]
 # desperado and mermonkey do not have default keybinds, left blank
 
-NumberMonkeysPlaced[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+NumberMonkeysPlaced = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 PlacedMonkeys = []
 
@@ -42,13 +42,14 @@ def PlaceMonkey(xCoord,yCoord,MonkeyName: str):
     
     for i in range (len(MonkeyNames)):
           if(MonkeyNames[i] == MonkeyName.lower()):
-              keypress = Keybinds[i]  
-    PlacedMonkeys[i] += 1
-    PlacedMonkeys.append([MonkeyName + str(PlacedMonkeys[i]),xCoord,yCoord]) 
+              NumberMonkeysPlaced[i] += 1
+              break
+    
+    PlacedMonkeys.append([MonkeyName + str(NumberMonkeysPlaced[i]),xCoord,yCoord]) 
 
-def UpgradeUnderCursor(UpgradePath: int):
+def UpgradeUnderCursor(UpgradePath: str):
     pydirectinput.leftClick()
-    UpgradePresses = list(str(UpgradePath))
+    UpgradePresses = list(UpgradePath)
     print(UpgradePresses)
     time.sleep(0.01)
     for i in range(3):
@@ -64,20 +65,28 @@ def UpgradeUnderCursor(UpgradePath: int):
                 print("/")
     pydirectinput.press("esc") # close upgrade menu
 
-def UpgradeMonkey(SpecificMonkeyName: str, UpgradePath: int):
+def UpgradeMonkey(SpecificMonkeyName: str, UpgradePath: str):
   # Should use stored monkey names to return to a monkey at a certain coordinate, upgrade it based on a certain amount
   for i in range(len(PlacedMonkeys)):
     if PlacedMonkeys[i][0] == SpecificMonkeyName:
-      pyautogui.moveTo(PlacedMonkeys[i][1],PlacedMonkeys[i][2]
+      pyautogui.moveTo(PlacedMonkeys[i][1],PlacedMonkeys[i][2])
       UpgradeUnderCursor(UpgradePath)
   return
 
 
+PlaceMonkey(400,800,"tack")
+
 PlaceMonkey(1000,1300,"plane")
-UpgradeUnderCursor(203)
+UpgradeUnderCursor("203")
 
 PlaceMonkey(1250,1300,"plane")
-UpgradeUnderCursor(203)
+UpgradeUnderCursor("203")
 
 PlaceMonkey(1450,1350,"hero")
 
+print(PlacedMonkeys)
+
+time.sleep(3)
+UpgradeMonkey("plane1","100")
+UpgradeMonkey("plane2","002")
+UpgradeMonkey("tack1","502")
