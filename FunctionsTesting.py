@@ -3,23 +3,26 @@ import pyautogui
 import pydirectinput
 import random
 
-screenWidth, screenHeight = pyautogui.size()
-currentMouseX, currentMouseY = pyautogui.position()
+# This should be hardcoded to the resolution of the monitor on which the macro was made
+originalScreenWidth = 2560
+originalScreenHeight = 1440
 
-time.sleep(2)
+# These values are used to convert actions on the original resolution to the resolution of the monitor running the macro
+screenWidth, screenHeight = pyautogui.size()
+
+widthRatio = screenWidth / originalScreenWidth
+heightRatio = screenHeight / originalScreenHeight
 
 UseDefaultKeybinds = True # If set to true, will use default BTD6 keybinds for actions
 
 MonkeyNames = ["dart","boomerang","bomb","tack","ice","glue", "desperado","sniper",
                "sub","boat","plane","heli","mortar","dartling","wizard","super",
                "ninja","alch","druid","mermonkey","farm","spike","village","engi","beast","hero"]
-
-Keybinds = ["q","w","e","r","t","y","","z","x","c","v","b","n","m","a","s","d","f","g","","h","j","k","l","i","u"]
-# desperado and mermonkey do not have default keybinds, left blank
-
+Keybinds = ["q","w","e","r","t","y","","z","x","c","v","b","n","m","a","s","d","f","g","","h","j","k","l","i","u"] # desperado and mermonkey do not have default keybinds, left blank
 NumberMonkeysPlaced = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 PlacedMonkeys = []
+
 
 def SelectMonkey(MonkeyName: str):
     if UseDefaultKeybinds:
@@ -37,7 +40,7 @@ def SelectMonkey(MonkeyName: str):
 def PlaceMonkey(xCoord,yCoord,MonkeyName: str):
     if MonkeyName != None:
         SelectMonkey(MonkeyName)
-    pydirectinput.moveTo(xCoord,yCoord,0.1)
+    pydirectinput.moveTo(int(xCoord*widthRatio), int(yCoord*heightRatio), 0.1)
     pydirectinput.leftClick()
     
     for i in range (len(MonkeyNames)):
@@ -45,7 +48,7 @@ def PlaceMonkey(xCoord,yCoord,MonkeyName: str):
               NumberMonkeysPlaced[i] += 1
               break
     
-    PlacedMonkeys.append([MonkeyName + str(NumberMonkeysPlaced[i]),xCoord,yCoord]) 
+    PlacedMonkeys.append([MonkeyName + str(NumberMonkeysPlaced[i]), int(xCoord*widthRatio), int(yCoord*heightRatio)]) 
 
 def UpgradeUnderCursor(UpgradePath: str):
     pydirectinput.leftClick()
@@ -65,14 +68,17 @@ def UpgradeUnderCursor(UpgradePath: str):
                 print("/")
     pydirectinput.press("esc") # close upgrade menu
 
-def UpgradeMonkey(SpecificMonkeyName: str, UpgradePath: str):
-  # Should use stored monkey names to return to a monkey at a certain coordinate, upgrade it based on a certain amount
+def UpgradeMonkey(SpecificMonkeyName: str, UpgradePath: str): 
+  # Find a monkey previously placed
   for i in range(len(PlacedMonkeys)):
     if PlacedMonkeys[i][0] == SpecificMonkeyName:
+    # Go to its coordinates  
       pyautogui.moveTo(PlacedMonkeys[i][1],PlacedMonkeys[i][2])
+    # Upgrade it
       UpgradeUnderCursor(UpgradePath)
   return
 
+time.sleep(3)
 
 PlaceMonkey(400,800,"tack")
 
@@ -87,6 +93,6 @@ PlaceMonkey(1450,1350,"hero")
 print(PlacedMonkeys)
 
 time.sleep(3)
-UpgradeMonkey("plane1","100")
-UpgradeMonkey("plane2","002")
-UpgradeMonkey("tack1","502")
+UpgradeMonkey("plane1","100") # invalid
+UpgradeMonkey("plane2","002") # valid
+UpgradeMonkey("tack1","502") # from nothing
