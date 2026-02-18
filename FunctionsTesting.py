@@ -3,81 +3,134 @@ import pyautogui
 import pydirectinput
 import random
 
-# This should be hardcoded to the resolution of the monitor on which the macro was made
+# Configuration
 originalScreenWidth = 2560
 originalScreenHeight = 1440
-
-# These values are used to convert actions on the original resolution to the resolution of the monitor running the macro
 screenWidth, screenHeight = pyautogui.size()
 
 widthRatio = screenWidth / originalScreenWidth
 heightRatio = screenHeight / originalScreenHeight
 
-UseDefaultKeybinds = True # If set to true, will use default BTD6 keybinds for actions
+UseDefaultKeybinds = True
 
-MonkeyNames = ["dart","boomerang","bomb","tack","ice","glue", "desperado","sniper",
-               "sub","boat","plane","heli","mortar","dartling","wizard","super",
-               "ninja","alch","druid","mermonkey","farm","spike","village","engi","beast","hero"]
-Keybinds = ["q","w","e","r","t","y","","z","x","c","v","b","n","m","a","s","d","f","g","","h","j","k","l","i","u"] # desperado and mermonkey do not have default keybinds, left blank
-NumberMonkeysPlaced = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+# Data
+monkeys = {
+    "dart": {"key":"q", "count":0},
+    "boomerang": {"key":"w", "count":0},
+    "bomb": {"key":"e", "count":0},
+    "tack": {"key":"r", "count":0},
+    "ice": {"key":"t", "count":0},
+    "glue": {"key":"y", "count":0},
+    "desperado": {"key":None, "count":0},
+    "sniper": {"key":"z", "count":0}, 
+    "sub": {"key":"x", "count":0},
+    "boat": {"key":"c", "count":0},
+    "plane": {"key":"v", "count":0},
+    "heli": {"key":"b", "count":0},
+    "mortar": {"key":"n", "count":0},
+    "dartling": {"key":"m", "count":0},
+    "wizard": {"key":"a", "count":0},
+    "super": {"key":"s", "count":0},
+    "ninja": {"key":"d", "count":0},
+    "alch": {"key":"f", "count":0},
+    "druid": {"key":"g", "count":0},
+    "mermonkey": {"key":None, "count":0},
+    "farm": {"key":"h", "count":0},
+    "spike": {"key":"j", "count":0},
+    "village": {"key":"k", "count":0},
+    "engi": {"key":"l", "count":0},
+    "beast": {"key":"i", "count":0},
+    "hero": {"key":"u", "count":0}
+}
 
+# Stores placed monkeys as a dictionary entry: {"id": "dart1", "x":100, "y":200, "target":first, "upgrades":000}
 PlacedMonkeys = []
 
 
+# Helper Functions
+def scale_coords(x,y):
+    return int(x*widthRatio), int(y*heightRatio)
+
 def SelectMonkey(MonkeyName: str):
-    if UseDefaultKeybinds:
-        keypress = ""
-        for i in range (len(MonkeyNames)):
-            if(MonkeyNames[i] == MonkeyName.lower()):
-                keypress = Keybinds[i]
-        print(keypress)
-        print(MonkeyName)
-        pydirectinput.press(keypress)
+    MonkeyName = MonkeyName.lower()
+    if MonkeyName in monkeys and monkeys[MonkeyName]["key"]:
+        pydirectinput.press(monkeys[MonkeyName]["key"])
     else:
-        pydirectinput.press(MonkeyName)
+        print("No keybind for {MonkeyName}")
+
+
+# Monkey based functions
+def PlaceMonkey(x, y, MonkeyName: str):
+    MonkeyName = MonkeyName.lower()
+    SelectMonkey(MonkeyName)
+
+    sx, sy = scale_coords(x, y)
+    if MonkeyName in monkeys:
+        pydirectinput.moveTo(x, y, 0.1)
+        pydirectinput.leftClick()
+        monkeys[MonkeyName]["count"] += 1
+        monkeyID = f"{MonkeyName}{monkeys[MonkeyName]['count']}"
+
+        PlacedMonkeys.append({
+            "id": monkeyID,
+            "x": sx, 
+            "y": sy, 
+            "target": "first",
+            "upgrades": "000"
+        })
+        print(f"Placed {monkeyID}")
+
+def UpgradeMonkey(monkeyID: str, UpgradePath: str): 
+    targetMonkey = None
+    for m in PlacedMonkeys:
+        if m["id"] == monkeyID:
+            targetMonkey = m
+            break
+    if targetMonkey == None:
+        print(f"Cant find {monkeyID}")
         return
-
-def PlaceMonkey(xCoord,yCoord,MonkeyName: str):
-    if MonkeyName != None:
-        SelectMonkey(MonkeyName)
-    pydirectinput.moveTo(int(xCoord*widthRatio), int(yCoord*heightRatio), 0.1)
+    
+    pyautogui.moveTo(targetMonkey["x"],targetMonkey["y"])
     pydirectinput.leftClick()
     
-    for i in range (len(MonkeyNames)):
-          if(MonkeyNames[i] == MonkeyName.lower()):
-              NumberMonkeysPlaced[i] += 1
-              break
-    
-    PlacedMonkeys.append([MonkeyName + str(NumberMonkeysPlaced[i]), int(xCoord*widthRatio), int(yCoord*heightRatio)]) 
+    time.sleep(0.1)
 
-def UpgradeUnderCursor(UpgradePath: str):
-    pydirectinput.leftClick()
-    UpgradePresses = list(UpgradePath)
-    print(UpgradePresses)
-    time.sleep(0.01)
+    currentUpgrades = []
+    for digit in targetMonkey["upgrades"]:
+        currentUpgrades.append(int(digit))
+    
+    print(currentUpgrades)
+    time.sleep(0.1)
+    
+    targetUpgrades = []
+    for digit in UpgradePath:
+        targetUpgrades.append(int(digit))
+    
+    print(targetUpgrades)
+    time.sleep(0.1)
+
+    pressesNeeded = []
     for i in range(3):
-        for j in range(int(UpgradePresses[i])):
-            if i == 0:
-                pydirectinput.press(",")
-                print(",")
-            if i == 1:
-                pydirectinput.press(".")
-                print(".")
-            if i == 2:
-                pydirectinput.press("/")
-                print("/")
-    pydirectinput.press("esc") # close upgrade menu
+        diff = targetUpgrades[i]-currentUpgrades[i]
+        if diff < 0:
+            diff = 0
+        pressesNeeded.append(diff)
+    
+    print(pressesNeeded)
+    time.sleep(0.1)
 
-def UpgradeMonkey(SpecificMonkeyName: str, UpgradePath: str): 
-  # Find a monkey previously placed
-  for i in range(len(PlacedMonkeys)):
-    if PlacedMonkeys[i][0] == SpecificMonkeyName:
-    # Go to its coordinates  
-      pyautogui.moveTo(PlacedMonkeys[i][1],PlacedMonkeys[i][2])
-    # Upgrade it
-      UpgradeUnderCursor(UpgradePath)
-  return
+    keys = [",",".","/"]
+    for i in range(3):
+        for j in range(pressesNeeded[i]):
+            pydirectinput.press(keys[i])
+            time.sleep(0.01)
+    
+    targetMonkey["upgrades"] = UpgradePath
+    time.sleep(0.1)
+    pydirectinput.press("esc")
 
+
+# Menu Functions
 def Pause():
     pydirectinput.press("esc")
 
@@ -102,26 +155,18 @@ def Restart():
 
 time.sleep(3)
 
-PlaceMonkey(400,800,"tack")
-
-PlaceMonkey(1000,1300,"plane")
-UpgradeUnderCursor("203")
-
-PlaceMonkey(1250,1300,"plane")
-UpgradeUnderCursor("203")
-
-PlaceMonkey(1450,1350,"hero")
+PlaceMonkey(800,800,"dart")
 
 print(PlacedMonkeys)
-Pause()
-time.sleep(1)
-Pause()
-time.sleep(3)
-UpgradeMonkey("plane1","100") # invalid
-UpgradeMonkey("plane2","002") # valid
-UpgradeMonkey("tack1","502") # from nothing
 
-time.sleep(1)
-Restart()
-time.sleep(5)
-GoHome()
+time.sleep(2)
+
+UpgradeMonkey("dart1","220")
+
+PlaceMonkey(800,1200,"dart")
+
+time.sleep(2)
+
+UpgradeMonkey("dart1","250")
+
+print(PlacedMonkeys)
