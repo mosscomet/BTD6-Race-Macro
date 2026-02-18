@@ -78,6 +78,28 @@ def UpgradeMonkey(SpecificMonkeyName: str, UpgradePath: str):
       UpgradeUnderCursor(UpgradePath)
   return
 
+def Pause():
+    pydirectinput.press("esc")
+
+def GoHome():
+    Pause()
+    time.sleep(0.1)
+    pyautogui.moveTo(int(1130*widthRatio),int(1130*heightRatio))
+    pydirectinput.leftClick()
+
+def Restart():
+    Pause()
+    time.sleep(0.1)
+    pyautogui.moveTo(int(1430*widthRatio),int(1130*heightRatio))
+    pydirectinput.leftClick()
+    time.sleep(0.1)
+    pyautogui.moveTo(int(1510*widthRatio),int(970*heightRatio))
+    pydirectinput.leftClick()
+
+
+
+
+
 time.sleep(3)
 
 PlaceMonkey(400,800,"tack")
@@ -91,8 +113,15 @@ UpgradeUnderCursor("203")
 PlaceMonkey(1450,1350,"hero")
 
 print(PlacedMonkeys)
-
+Pause()
+time.sleep(1)
+Pause()
 time.sleep(3)
 UpgradeMonkey("plane1","100") # invalid
 UpgradeMonkey("plane2","002") # valid
 UpgradeMonkey("tack1","502") # from nothing
+
+time.sleep(1)
+Restart()
+time.sleep(5)
+GoHome()
