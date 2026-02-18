@@ -15,8 +15,11 @@ MonkeyNames = ["dart","boomerang","bomb","tack","ice","glue", "desperado","snipe
                "ninja","alch","druid","mermonkey","farm","spike","village","engi","beast","hero"]
 
 Keybinds = ["q","w","e","r","t","y","","z","x","c","v","b","n","m","a","s","d","f","g","","h","j","k","l","i","u"]
+# desperado and mermonkey do not have default keybinds, left blank
 
+NumberMonkeysPlaced[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
+PlacedMonkeys = []
 
 def SelectMonkey(MonkeyName: str):
     if UseDefaultKeybinds:
@@ -36,6 +39,12 @@ def PlaceMonkey(xCoord,yCoord,MonkeyName: str):
         SelectMonkey(MonkeyName)
     pydirectinput.moveTo(xCoord,yCoord,0.1)
     pydirectinput.leftClick()
+    
+    for i in range (len(MonkeyNames)):
+          if(MonkeyNames[i] == MonkeyName.lower()):
+              keypress = Keybinds[i]  
+    PlacedMonkeys[i] += 1
+    PlacedMonkeys.append([MonkeyName + str(PlacedMonkeys[i]),xCoord,yCoord]) 
 
 def UpgradeUnderCursor(UpgradePath: int):
     pydirectinput.leftClick()
@@ -53,6 +62,15 @@ def UpgradeUnderCursor(UpgradePath: int):
             if i == 2:
                 pydirectinput.press("/")
                 print("/")
+    pydirectinput.press("esc") # close upgrade menu
+
+def UpgradeMonkey(SpecificMonkeyName: str, UpgradePath: int):
+  # Should use stored monkey names to return to a monkey at a certain coordinate, upgrade it based on a certain amount
+  for i in range(len(PlacedMonkeys)):
+    if PlacedMonkeys[i][0] == SpecificMonkeyName:
+      pyautogui.moveTo(PlacedMonkeys[i][1],PlacedMonkeys[i][2]
+      UpgradeUnderCursor(UpgradePath)
+  return
 
 
 PlaceMonkey(1000,1300,"plane")
@@ -62,3 +80,4 @@ PlaceMonkey(1250,1300,"plane")
 UpgradeUnderCursor(203)
 
 PlaceMonkey(1450,1350,"hero")
+
